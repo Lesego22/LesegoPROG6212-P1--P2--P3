@@ -1,4 +1,4 @@
-
+-- Create Tables
 CREATE TABLE [dbo].[UserRole] (
     [UserRoleId] [uniqueidentifier] NOT NULL PRIMARY KEY DEFAULT NEWID(),
     [RoleName] [nvarchar](50) NOT NULL UNIQUE,
