@@ -1,4 +1,5 @@
 -- Commit for documentation
+--Select all entities
 SELECT 'UserRole' AS TableName, COUNT(*) AS RecordCount FROM [dbo].[UserRole]
 UNION ALL
 SELECT 'User', COUNT(*) FROM [dbo].[User]
