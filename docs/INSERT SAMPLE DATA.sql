@@ -1,4 +1,4 @@
-
+--Insert Information
 INSERT INTO [dbo].[UserRole] ([RoleName], [Description]) VALUES 
     (N'Organiser', N'Event organizer who creates and manages events'),
     (N'Participant', N'Person who participates in events');
