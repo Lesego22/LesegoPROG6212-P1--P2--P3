@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[User] (
 CREATE TABLE [dbo].[Category] (
     [CategoryId] [uniqueidentifier] NOT NULL PRIMARY KEY DEFAULT NEWID(),
     [CategoryName] [nvarchar](50) NOT NULL,
-    [Description] [nvarchar](255),
+    [Description] [nvarchar](45),
     [MinAge] [int],
     [MaxAge] [int],
     [CreatedDate] [datetime] NOT NULL DEFAULT GETUTCDATE()
