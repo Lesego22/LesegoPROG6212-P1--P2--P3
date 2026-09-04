@@ -30,7 +30,7 @@ SELECT
     e.[EventDate]
 FROM [dbo].[Event] e
 ORDER BY e.[EventDate];
- 
+ -- Category
  SELECT 
     [CategoryName],
     [Description],
