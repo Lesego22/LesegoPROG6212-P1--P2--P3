@@ -45,7 +45,7 @@ INSERT INTO [dbo].[Category] ([CategoryName], [Description], [MinAge], [MaxAge])
  DECLARE @Cat10K UNIQUEIDENTIFIER = (SELECT [CategoryId] FROM [dbo].[Category] WHERE [CategoryName] = '10K');
 DECLARE @CatHM UNIQUEIDENTIFIER = (SELECT [CategoryId] FROM [dbo].[Category] WHERE [CategoryName] = 'Half Marathon');
 DECLARE @Cat1835 UNIQUEIDENTIFIER = (SELECT [CategoryId] FROM [dbo].[Category] WHERE [CategoryName] = '18-35');
- 
+ -- Insert EventCategory
 INSERT INTO [dbo].[EventCategory] ([EventId], [CategoryId]) VALUES 
     (@Event1, @Cat10K),
     (@Event2, @CatHM),
