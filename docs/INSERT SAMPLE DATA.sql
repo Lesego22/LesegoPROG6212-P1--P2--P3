@@ -54,7 +54,7 @@ INSERT INTO [dbo].[EventCategory] ([EventId], [CategoryId]) VALUES
  DECLARE @EC2 UNIQUEIDENTIFIER = (SELECT [EventCategoryId] FROM [dbo].[EventCategory] WHERE [EventId] = (SELECT [EventId] FROM [dbo].[Event] WHERE [EventName] = 'Johannesburg Half Marathon') AND [CategoryId] = (SELECT [CategoryId] FROM [dbo].[Category] WHERE [CategoryName] = 'Half Marathon'));
 DECLARE @EC3 UNIQUEIDENTIFIER = (SELECT [EventCategoryId] FROM [dbo].[EventCategory] WHERE [EventId] = (SELECT [EventId] FROM [dbo].[Event] WHERE [EventName] = 'Cape Town Cycle Challenge') AND [CategoryId] = (SELECT [CategoryId] FROM [dbo].[Category] WHERE [CategoryName] = '18-35'));
  
--- Get User IDs (refresh)
+
 DECLARE @Part1 UNIQUEIDENTIFIER = (SELECT [UserId] FROM [dbo].[User] WHERE [Email] = 'participant1@raceday.co.za');
 DECLARE @Part2 UNIQUEIDENTIFIER = (SELECT [UserId] FROM [dbo].[User] WHERE [Email] = 'participant2@raceday.co.za');
 DECLARE @Part3 UNIQUEIDENTIFIER = (SELECT [UserId] FROM [dbo].[User] WHERE [Email] = 'participant3@raceday.co.za');
