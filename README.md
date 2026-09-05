@@ -48,4 +48,11 @@ The system includes 17 RESTful API endpoints covering:
 ## GitHub Repository
 All planning documents, SQL scripts, and ERD are available in the `/docs` folder.
 
-##
+## CI/CD Workflow Screenshot: 
+<img width="998" height="322" alt="image" src="https://github.com/user-attachments/assets/0d647017-b64c-47f5-ad4b-306414a2f432" />
+
+---
+## Video Presentation
+The video presentation is demonstrated on YouTube explaining the endpoints, Erd and SQL scripts for raceday.
+YouTube Link: https://youtu.be/L8OCDb0Fquohttps://youtu.be/L8OCDb0Fquohttps://youtu.be/L8OCDb0Fquo
+
