@@ -43,6 +43,7 @@ The system includes 17 RESTful API endpoints covering:
 - `CREATE TABLES.sql` - Table creation script
 - `INSERT SAMPLE DATA.sql` - Sample data insertion
 - `VERIFY DATA.sql` - Data verification queries
+- `PROG6212 RaceDay`- the Api endpoints and the screenshots for section c
 
 ## GitHub Repository
 All planning documents, SQL scripts, and ERD are available in the `/docs` folder.
