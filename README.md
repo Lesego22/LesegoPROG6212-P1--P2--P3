@@ -138,7 +138,8 @@ In Visual Studio use **Test > Run All Tests**, or run `dotnet test` inside `Part
 ## CI/CD
 `.github/workflows/part2-ci.yml` restores, builds and runs all tests on every push.
 
-![Green build](<img width="1920" height="1017" alt="image" src="https://github.com/user-attachments/assets/986633a5-9228-4773-80bb-75c462da9766" />
+![Green build](<img width="1920" height="1017" alt="image" src="<img width="1920" height="1021" alt="image" src="https://github.com/user-attachments/assets/fa9fa22c-a0cb-47f9-9d5c-c4f52ceb16a7" />
+" />
 
 
 ---
