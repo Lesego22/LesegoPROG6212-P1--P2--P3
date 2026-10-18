@@ -11,10 +11,6 @@ public interface ITokenService
     string CreateToken(AppUser user, string roleName);
 }
 
-/// <summary>
-/// Creates the signed JWT that acts as the user's "session". The token carries the
-/// user's id, email and role, so every later request is authenticated and role-checked.
-/// </summary>
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
