@@ -1,0 +1,31 @@
+name: Part 2 API CI
+
+on:
+  push:
+    branches: [ "Part2-Api" ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Part2-API
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore packages
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
