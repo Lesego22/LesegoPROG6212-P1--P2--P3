@@ -49,7 +49,8 @@ The system includes 17 RESTful API endpoints covering:
 All planning documents, SQL scripts, and ERD are available in the `/docs` folder.
 
 ## CI/CD Workflow Screenshot: 
-<img width="998" height="322" alt="image" src="https://github.com/user-attachments/assets/0d647017-b64c-47f5-ad4b-306414a2f432" />
+<img width="998" height="322" alt="image" src="<img width="1920" height="1017" alt="image" src="https://github.com/user-attachments/assets/bf521a39-58f8-49a8-882f-3c9f2c58a886" />
+" />
 
 ---
 ## Video Presentation
