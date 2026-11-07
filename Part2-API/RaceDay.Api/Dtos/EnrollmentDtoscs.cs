@@ -13,10 +13,19 @@ public class EnrollRequest
 
 public record EnrollResponse(Guid EnrollmentId, string Status, DateTime EnrollmentDate);
 
-public record UserEnrollmentDto(Guid EnrollmentId, string EventName, string CategoryName, string Status, DateTime EnrollmentDate);
+public record UserEnrollmentDto(Guid EnrollmentId, Guid EventId, string EventName, DateTime EventDate, string CategoryName, string Status, DateTime EnrollmentDate);
 
 public record UserEnrollmentsResponse(List<UserEnrollmentDto> Enrollments);
 
 public record EventEnrollmentDto(Guid EnrollmentId, string UserName, string Email, string CategoryName, string Status, DateTime EnrollmentDate);
 
 public record EventEnrollmentsResponse(List<EventEnrollmentDto> Enrollments);
+
+public class UpdateEnrollmentStatusRequest
+{
+    /// <summary>Pending, Confirmed or Cancelled.</summary>
+    [Required]
+    public string Status { get; set; } = string.Empty;
+}
+
+public record UpdateEnrollmentStatusResponse(Guid EnrollmentId, string Status);
