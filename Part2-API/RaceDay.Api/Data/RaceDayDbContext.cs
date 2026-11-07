@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Models;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace RaceDay.Api.Data;
 
@@ -20,7 +18,7 @@ public class RaceDayDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        
+        // ---- UserRole ----
         modelBuilder.Entity<UserRole>(e =>
         {
             e.ToTable("UserRole");
@@ -30,14 +28,14 @@ public class RaceDayDbContext : DbContext
             e.Property(x => x.Description).HasMaxLength(255);
             e.Property(x => x.CreatedDate).HasColumnType("datetime");
 
-            
+            // Seed the two roles so registration works on a brand-new database
             var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             e.HasData(
                 new UserRole { UserRoleId = RoleIds.Organiser, RoleName = RoleNames.Organiser, Description = "Event organizer who creates and manages events", CreatedDate = seedDate },
                 new UserRole { UserRoleId = RoleIds.Participant, RoleName = RoleNames.Participant, Description = "Person who participates in events", CreatedDate = seedDate });
         });
 
-        
+        // ---- User ----
         modelBuilder.Entity<AppUser>(e =>
         {
             e.ToTable("User");
@@ -48,23 +46,25 @@ public class RaceDayDbContext : DbContext
             e.Property(x => x.FirstName).HasMaxLength(50).IsRequired();
             e.Property(x => x.LastName).HasMaxLength(50).IsRequired();
             e.Property(x => x.PhoneNumber).HasMaxLength(20);
+            e.Property(x => x.ProfilePicture).HasMaxLength(300);
             e.Property(x => x.CreatedDate).HasColumnType("datetime");
             e.Property(x => x.ModifiedDate).HasColumnType("datetime");
             e.HasOne(x => x.UserRole).WithMany(r => r.Users)
                 .HasForeignKey(x => x.UserRoleId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        
+        // ---- Event ----
         modelBuilder.Entity<Event>(e =>
         {
             e.ToTable("Event");
             e.HasKey(x => x.EventId);
             e.Property(x => x.EventName).HasMaxLength(100).IsRequired();
-            e.Property(x => x.Description); 
+            e.Property(x => x.Description); // nvarchar(max)
             e.Property(x => x.EventDate).HasColumnType("datetime");
             e.Property(x => x.Location).HasMaxLength(100).IsRequired();
             e.Property(x => x.Distance).HasColumnType("decimal(5,2)");
             e.Property(x => x.EventType).HasMaxLength(20).IsRequired();
+            e.Property(x => x.BannerImage).HasMaxLength(300);
             e.Property(x => x.Status).HasMaxLength(20).IsRequired();
             e.Property(x => x.CreatedDate).HasColumnType("datetime");
             e.Property(x => x.ModifiedDate).HasColumnType("datetime");
@@ -72,7 +72,7 @@ public class RaceDayDbContext : DbContext
                 .HasForeignKey(x => x.OrganiserId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        
+        // ---- Category ----
         modelBuilder.Entity<Category>(e =>
         {
             e.ToTable("Category");
@@ -82,6 +82,7 @@ public class RaceDayDbContext : DbContext
             e.Property(x => x.CreatedDate).HasColumnType("datetime");
         });
 
+        // ---- EventCategory (junction) ----
         modelBuilder.Entity<EventCategory>(e =>
         {
             e.ToTable("EventCategory");
@@ -94,22 +95,23 @@ public class RaceDayDbContext : DbContext
                 .HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
         });
 
+        // ---- Enrolment ----
         modelBuilder.Entity<Enrolment>(e =>
         {
-            e.ToTable("Enrollment");
+            e.ToTable("Enrolment");
             e.HasKey(x => x.EnrolmentId);
             e.Property(x => x.EmergencyContact).HasMaxLength(100);
             e.Property(x => x.EnrolmentStatus).HasMaxLength(20).IsRequired();
             e.Property(x => x.EnrolmentDate).HasColumnType("datetime");
             e.Property(x => x.CreatedDate).HasColumnType("datetime");
             e.Property(x => x.ModifiedDate).HasColumnType("datetime");
-            e.HasOne(x => x.Participant).WithMany(u => u.Enrollments)
+            e.HasOne(x => x.Participant).WithMany(u => u.Enrolments)
                 .HasForeignKey(x => x.ParticipantId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.EventCategory).WithMany(ec => ec.Enrolments)
                 .HasForeignKey(x => x.EventCategoryId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        
+        // ---- Result (one result per enrolment) ----
         modelBuilder.Entity<Result>(e =>
         {
             e.ToTable("Result");
@@ -123,4 +125,3 @@ public class RaceDayDbContext : DbContext
         });
     }
 }
-
