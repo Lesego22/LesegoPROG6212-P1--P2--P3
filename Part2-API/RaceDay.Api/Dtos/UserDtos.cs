@@ -4,7 +4,7 @@ namespace RaceDay.Api.Dtos;
 
 public record UserProfileResponse(
     Guid UserId, string Email, string FirstName, string LastName,
-    string? PhoneNumber, string Role, DateTime CreatedDate);
+    string? PhoneNumber, string Role, DateTime CreatedDate, string? ProfilePicture);
 
 public class UpdateProfileRequest
 {
@@ -17,6 +17,3 @@ public class UpdateProfileRequest
     [StringLength(20)]
     public string? PhoneNumber { get; set; }
 }
-
-public record UpdateProfileResponse(Guid UserId, string FirstName, string LastName, DateTime ModifiedDate);
-
