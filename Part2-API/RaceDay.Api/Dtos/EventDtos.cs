@@ -9,28 +9,34 @@ public class EventRequestBase
 
     public string? Description { get; set; }
 
+    
     public DateTime Date { get; set; }
 
     [Required, StringLength(100)]
     public string Location { get; set; } = string.Empty;
 
+    
     [Range(0.01, 999.99)]
     public decimal Distance { get; set; }
 
+    
     [Range(1, 1000000)]
     public int Capacity { get; set; }
 
+    
     [Required]
     public string EventType { get; set; } = "Run";
 }
 
 public class CreateEventRequest : EventRequestBase
 {
+    
     public List<Guid> CategoryIds { get; set; } = new();
 }
 
 public class UpdateEventRequest : EventRequestBase
 {
+    
     [Required]
     public string Status { get; set; } = "Scheduled";
 }
@@ -42,7 +48,7 @@ public class LinkCategoryRequest
 
 public record EventSummaryDto(
     Guid EventId, string Name, DateTime Date, string Location,
-    decimal Distance, int Capacity, string EventType, string Status);
+    decimal Distance, int Capacity, string EventType, string Status, string? BannerImage);
 
 public record EventListResponse(List<EventSummaryDto> Events);
 
@@ -52,7 +58,14 @@ public record EventCategoryDto(Guid CategoryId, string Name);
 
 public record EventDetailResponse(
     Guid EventId, string Name, string? Description, DateTime Date, string Location,
-    decimal Distance, int Capacity, string EventType, string Status,
+    decimal Distance, int Capacity, string EventType, string Status, string? BannerImage,
     List<EventCategoryDto> Categories);
 
 public record UpdateEventResponse(Guid EventId, DateTime ModifiedDate);
+
+public record OrganiserEventDto(
+    Guid EventId, string Name, DateTime Date, string Location,
+    decimal Distance, int Capacity, string EventType, string Status,
+    string? BannerImage, int EnrolmentCount);
+
+public record OrganiserEventListResponse(List<OrganiserEventDto> Events);
