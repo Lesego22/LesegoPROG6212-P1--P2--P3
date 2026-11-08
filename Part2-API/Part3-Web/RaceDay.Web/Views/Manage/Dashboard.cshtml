@@ -1,0 +1,71 @@
+﻿@model List<OrganiserEvent>
+@{
+    ViewData["Title"] = "Dashboard";
+    var upcoming = Model.Where(e => e.Date >= DateTime.Now && e.Status == "Scheduled").OrderBy(e => e.Date).ToList();
+    var totalEnrolments = Model.Sum(e => e.EnrolmentCount);
+}
+<div class="page-header">
+    <h1 class="rd-heading">Organiser dashboard</h1>
+    <p>A quick look at your events and who has signed up.</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="rd-card stat-card"><div class="stat-number">@Model.Count</div><div class="stat-label">Events created</div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-card stat-card"><div class="stat-number">@totalEnrolments</div><div class="stat-label">Total enrolments</div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-card stat-card"><div class="stat-number">@upcoming.Count</div><div class="stat-label">Upcoming events</div></div>
+    </div>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="empty-state">You have not created any events yet. <a asp-action="Create">Create your first event</a></div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="rd-card p-4 h-100">
+                <h2 class="rd-heading h5">Upcoming dates</h2>
+                @if (upcoming.Count == 0)
+                {
+                    <p class="text-muted mb-0">No upcoming events.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var e in upcoming)
+                        {
+                            <li class="d-flex justify-content-between border-bottom py-2">
+                                <span>@e.Name</span>
+                                <span class="fw-bold">@e.Date.ToString("d MMM yyyy")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="rd-card table-responsive">
+                <table class="table rd-table align-middle mb-0">
+                    <thead><tr><th>Event</th><th>Date</th><th>Status</th><th class="text-end">Enrolments</th></tr></thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                <td><a asp-action="Enrolments" asp-route-id="@e.EventId">@e.Name</a></td>
+                                <td>@e.Date.ToString("d MMM yyyy")</td>
+                                <td><partial name="_StatusBadge" model="e.Status" /></td>
+                                <td class="text-end">@e.EnrolmentCount / @e.Capacity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
