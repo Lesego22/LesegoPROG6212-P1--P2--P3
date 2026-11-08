@@ -1,0 +1,52 @@
+﻿@model EventsIndexViewModel
+@{
+    ViewData["Title"] = "Upcoming events";
+}
+<div class="page-header">
+    <h1 class="rd-heading">Upcoming events</h1>
+    <p>Find your next race and sign up.</p>
+</div>
+
+<form method="get" asp-action="Index" class="rd-card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="location">Location</label>
+            <input class="form-control" id="location" name="location" value="@Model.Location" placeholder="e.g. Pretoria" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="eventType">Type</label>
+            <select class="form-select" id="eventType" name="eventType">
+                <option value="">All types</option>
+                <option value="Run" selected="@(Model.EventType == "Run")">Run</option>
+                <option value="Walk" selected="@(Model.EventType == "Walk")">Walk</option>
+                <option value="Cycle" selected="@(Model.EventType == "Cycle")">Cycle</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="from">From</label>
+            <input class="form-control" type="date" id="from" name="from" value="@(Model.From?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="to">To</label>
+            <input class="form-control" type="date" id="to" name="to" value="@(Model.To?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-rd flex-fill">Filter</button>
+            <a class="btn btn-outline-dark flex-fill" asp-action="Index">Clear</a>
+        </div>
+    </div>
+</form>
+
+@if (Model.Events.Count == 0)
+{
+    <div class="empty-state">No upcoming events match your filters. Try clearing them.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var e in Model.Events)
+        {
+            <partial name="_EventCard" model="e" />
+        }
+    </div>
+}
