@@ -1,0 +1,46 @@
+﻿@model List<OrganiserEvent>
+@{
+    ViewData["Title"] = "My events";
+}
+<div class="page-header">
+    <h1 class="rd-heading">My events</h1>
+    <p>Create, edit and manage your events.</p>
+</div>
+
+<p><a class="btn btn-rd" asp-action="Create">+ New event</a></p>
+
+@if (Model.Count == 0)
+{
+    <div class="empty-state">You have not created any events yet.</div>
+}
+else
+{
+    <div class="rd-card table-responsive">
+        <table class="table rd-table align-middle mb-0">
+            <thead>
+                <tr><th>Event</th><th>Date</th><th>Type</th><th>Status</th><th class="text-end">Enrolments</th><th class="text-end">Manage</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@e.Name<div class="text-muted small">@e.Location - @e.Distance.ToString("0.##") km</div></td>
+                        <td>@e.Date.ToString("d MMM yyyy")</td>
+                        <td>@e.EventType</td>
+                        <td><partial name="_StatusBadge" model="e.Status" /></td>
+                        <td class="text-end">@e.EnrolmentCount / @e.Capacity</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-outline-dark btn-sm" asp-action="Edit" asp-route-id="@e.EventId">Edit</a>
+                            <a class="btn btn-outline-dark btn-sm" asp-action="Categories" asp-route-id="@e.EventId">Categories</a>
+                            <a class="btn btn-outline-dark btn-sm" asp-action="Enrolments" asp-route-id="@e.EventId">Enrolments</a>
+                            <a class="btn btn-outline-dark btn-sm" asp-action="Results" asp-route-id="@e.EventId">Results</a>
+                            <form asp-action="Delete" asp-route-id="@e.EventId" method="post" class="d-inline" onsubmit="return confirm('Delete this event? This cannot be undone.');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
