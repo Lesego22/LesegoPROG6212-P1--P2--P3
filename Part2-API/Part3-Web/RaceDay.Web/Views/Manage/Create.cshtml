@@ -1,0 +1,12 @@
+﻿@model EventForm
+@{
+    ViewData["Title"] = "New event";
+    ViewData["IsEdit"] = false;
+}
+<div class="page-header">
+    <h1 class="rd-heading">Create an event</h1>
+    <p>Fill in the details. You can add categories on the next page.</p>
+</div>
+<div class="rd-card p-4">
+    <partial name="_EventForm" model="Model" view-data="ViewData" />
+</div>
