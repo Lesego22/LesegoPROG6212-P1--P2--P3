@@ -1,0 +1,54 @@
+﻿@model ManageEnrolmentsViewModel
+@{
+    ViewData["Title"] = "Enrolments";
+}
+<div class="page-header">
+    <h1 class="rd-heading">Enrolments</h1>
+    <p>@Model.Event.Name - everyone who has signed up.</p>
+</div>
+
+@if (Model.Enrollments.Count == 0)
+{
+    <div class="empty-state">Nobody has enrolled for this event yet.</div>
+}
+else
+{
+    <div class="rd-card table-responsive">
+        <table class="table rd-table align-middle mb-0">
+            <thead>
+                <tr><th>Participant</th><th>Email</th><th>Category</th><th>Status</th><th>Enrolled on</th><th class="text-end">Change status</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model.Enrollments)
+                {
+                    <tr>
+                        <td>@e.UserName</td>
+                        <td>@e.Email</td>
+                        <td>@e.CategoryName</td>
+                        <td><partial name="_StatusBadge" model="e.Status" /></td>
+                        <td>@e.EnrollmentDate.ToString("d MMM yyyy")</td>
+                        <td class="text-end text-nowrap">
+                            @if (e.Status != "Confirmed")
+                            {
+                                <form asp-action="SetStatus" asp-route-id="@Model.Event.EventId" method="post" class="d-inline">
+                                    <input type="hidden" name="enrollmentId" value="@e.EnrollmentId" />
+                                    <input type="hidden" name="status" value="Confirmed" />
+                                    <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+                                </form>
+                            }
+                            @if (e.Status != "Cancelled")
+                            {
+                                <form asp-action="SetStatus" asp-route-id="@Model.Event.EventId" method="post" class="d-inline">
+                                    <input type="hidden" name="enrollmentId" value="@e.EnrollmentId" />
+                                    <input type="hidden" name="status" value="Cancelled" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+<p class="mt-4"><a asp-action="Events">&larr; Back to my events</a></p>

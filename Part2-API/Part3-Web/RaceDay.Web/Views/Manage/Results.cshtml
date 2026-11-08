@@ -1,0 +1,73 @@
+﻿@model ManageResultsViewModel
+@{
+    ViewData["Title"] = "Results";
+}
+<div class="page-header">
+    <h1 class="rd-heading">Results</h1>
+    <p>@Model.Event.Name - enter finish times and positions after the event.</p>
+</div>
+
+<h2 class="rd-heading h5">Waiting for a result</h2>
+@if (Model.Awaiting.Count == 0)
+{
+    <div class="empty-state mb-4">Every enrolled participant has a result.</div>
+}
+else
+{
+    <div class="mb-4">
+        @foreach (var e in Model.Awaiting)
+        {
+            <div class="rd-card p-3 mb-3">
+                <form asp-action="RecordResult" asp-route-id="@Model.Event.EventId" method="post" class="row g-2 align-items-end">
+                    <input type="hidden" name="EnrollmentId" value="@e.EnrollmentId" />
+                    <div class="col-lg-4">
+                        <div class="fw-bold">@e.UserName</div>
+                        <div class="text-muted small">@e.CategoryName</div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label small mb-1">Finish time (hh:mm:ss)</label>
+                        <input class="form-control" name="FinishTime" placeholder="00:45:32" required />
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="form-label small mb-1">Position</label>
+                        <input class="form-control" type="number" min="1" name="Position" required />
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="form-label small mb-1">Chip no.</label>
+                        <input class="form-control" name="ChipNumber" maxlength="20" />
+                    </div>
+                    <div class="col-lg-1 d-grid">
+                        <button type="submit" class="btn btn-rd">Save</button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+}
+
+<h2 class="rd-heading h5">Published results</h2>
+@if (Model.Results.Count == 0)
+{
+    <div class="empty-state">No results published yet.</div>
+}
+else
+{
+    <div class="rd-card table-responsive">
+        <table class="table rd-table align-middle mb-0">
+            <thead><tr><th>Position</th><th>Participant</th><th>Category</th><th>Finish time</th><th>Chip</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Results)
+                {
+                    <tr>
+                        <td><span class="position">@Fmt.Ordinal(r.Position)</span></td>
+                        <td>@r.UserName</td>
+                        <td>@r.CategoryName</td>
+                        <td class="fw-bold">@Fmt.Time(r.FinishTime)</td>
+                        <td>@r.ChipNumber</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+<p class="mt-4"><a asp-action="Events">&larr; Back to my events</a></p>

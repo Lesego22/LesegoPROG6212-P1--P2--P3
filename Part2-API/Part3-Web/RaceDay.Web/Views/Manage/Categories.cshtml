@@ -1,0 +1,76 @@
+﻿@model ManageCategoriesViewModel
+@{
+    ViewData["Title"] = "Categories";
+}
+<div class="page-header">
+    <h1 class="rd-heading">Categories</h1>
+    <p>@Model.Event.Name - choose the age or distance groups people can enter.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="rd-card p-4 mb-4">
+            <h2 class="rd-heading h5">On this event</h2>
+            @if (Model.Event.Categories.Count == 0)
+            {
+                <p class="text-muted mb-0">No categories yet.</p>
+            }
+            else
+            {
+                foreach (var c in Model.Event.Categories)
+                {
+                    <span class="chip">@c.Name</span>
+                }
+            }
+        </div>
+
+        <div class="rd-card p-4">
+            <h2 class="rd-heading h5">Add an existing category</h2>
+            @if (Model.Available.Count == 0)
+            {
+                <p class="text-muted mb-0">There are no other categories to add. Create a new one.</p>
+            }
+            else
+            {
+                <form asp-action="AddCategory" asp-route-id="@Model.Event.EventId" method="post">
+                    <select class="form-select mb-3" name="categoryId">
+                        @foreach (var c in Model.Available)
+                        {
+                            <option value="@c.CategoryId">@c.Name</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-rd">Add to event</button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="rd-card p-4">
+            <h2 class="rd-heading h5">Create a new category</h2>
+            <form asp-action="CreateCategory" asp-route-id="@Model.Event.EventId" method="post" novalidate>
+                <div asp-validation-summary="All" class="text-danger mb-2"></div>
+                <div class="mb-3">
+                    <label class="form-label" for="Name">Name (for example 10km or Under 20)</label>
+                    <input class="form-control" id="Name" name="Name" value="@Model.NewCategory.Name" maxlength="50" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="Description">Description</label>
+                    <input class="form-control" id="Description" name="Description" value="@Model.NewCategory.Description" maxlength="255" />
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="MinAge">Minimum age (optional)</label>
+                        <input class="form-control" type="number" id="MinAge" name="MinAge" value="@Model.NewCategory.MinAge" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="MaxAge">Maximum age (optional)</label>
+                        <input class="form-control" type="number" id="MaxAge" name="MaxAge" value="@Model.NewCategory.MaxAge" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-rd">Create and add to event</button>
+            </form>
+        </div>
+    </div>
+</div>
+<p class="mt-4"><a asp-action="Events">&larr; Back to my events</a></p>

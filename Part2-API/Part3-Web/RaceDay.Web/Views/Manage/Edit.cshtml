@@ -1,0 +1,12 @@
+﻿@model EventForm
+@{
+    ViewData["Title"] = "Edit event";
+    ViewData["IsEdit"] = true;
+}
+<div class="page-header">
+    <h1 class="rd-heading">Edit event</h1>
+    <p>Change the details of "@Model.Name".</p>
+</div>
+<div class="rd-card p-4">
+    <partial name="_EventForm" model="Model" view-data="ViewData" />
+</div>
