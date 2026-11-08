@@ -4,7 +4,6 @@ using RaceDay.Api.Dtos;
 
 namespace RaceDay.Api.Tests;
 
-
 public class EventTests : IClassFixture<RaceDayFactory>
 {
     private readonly RaceDayFactory _factory;
@@ -156,5 +155,38 @@ public class EventTests : IClassFixture<RaceDayFactory>
         var response = await _factory.ClientFor(user.Token).GetAsync($"/api/events/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Organiser_CanListOwnEvents_WithEnrolmentCounts()
+    {
+        var organiser = await _factory.RegisterAsync(organiser: true);
+        var client = _factory.ClientFor(organiser.Token);
+        var (eventId, categoryId) = await TestHelpers.CreateEventWithCategoryAsync(client);
+        var participant = await _factory.RegisterAsync(organiser: false);
+        await TestHelpers.EnrolAsync(_factory.ClientFor(participant.Token), eventId, categoryId);
+
+        var list = await client.GetFromJsonAsync<OrganiserEventListResponse>("/api/events/mine");
+
+        var item = Assert.Single(list!.Events);
+        Assert.Equal(1, item.EnrolmentCount);
+    }
+
+    [Fact]
+    public async Task Participant_CannotListOrganiserEvents()
+    {
+        var participant = await _factory.RegisterAsync(organiser: false);
+
+        var response = await _factory.ClientFor(participant.Token).GetAsync("/api/events/mine");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Images_WithInvalidName_ReturnsBadRequest()
+    {
+        var response = await _factory.CreateClient().GetAsync("/api/images?name=../secret.txt");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

@@ -24,9 +24,8 @@ public class EnrolmentTests : IClassFixture<RaceDayFactory>
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var enrol = await response.Content.ReadFromJsonAsync<EnrollResponse>();
-        Assert.Equal("Active", enrol!.Status);
+        Assert.Equal("Pending", enrol!.Status);
 
-        // The link between participant, event and category must be stored
         var mine = await client.GetFromJsonAsync<UserEnrollmentsResponse>($"/api/enrollments/user/{participant.UserId}");
         var item = Assert.Single(mine!.Enrollments);
         Assert.Equal(enrol.EnrollmentId, item.EnrollmentId);
@@ -123,6 +122,39 @@ public class EnrolmentTests : IClassFixture<RaceDayFactory>
         var b = await _factory.RegisterAsync(organiser: false);
 
         var response = await _factory.ClientFor(a.Token).GetAsync($"/api/enrollments/user/{b.UserId}");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Organiser_CanConfirmAnEnrolment()
+    {
+        var organiser = await _factory.RegisterAsync(organiser: true);
+        var orgClient = _factory.ClientFor(organiser.Token);
+        var (eventId, categoryId) = await TestHelpers.CreateEventWithCategoryAsync(orgClient);
+        var participant = await _factory.RegisterAsync(organiser: false);
+        var partClient = _factory.ClientFor(participant.Token);
+        var enrolmentId = await TestHelpers.EnrolAsync(partClient, eventId, categoryId);
+
+        var response = await orgClient.PutAsJsonAsync($"/api/enrollments/{enrolmentId}/status",
+            new UpdateEnrollmentStatusRequest { Status = "Confirmed" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var mine = await partClient.GetFromJsonAsync<UserEnrollmentsResponse>($"/api/enrollments/user/{participant.UserId}");
+        Assert.Equal("Confirmed", Assert.Single(mine!.Enrollments).Status);
+    }
+
+    [Fact]
+    public async Task Participant_CannotChangeAnEnrolmentStatus()
+    {
+        var organiser = await _factory.RegisterAsync(organiser: true);
+        var (eventId, categoryId) = await TestHelpers.CreateEventWithCategoryAsync(_factory.ClientFor(organiser.Token));
+        var participant = await _factory.RegisterAsync(organiser: false);
+        var partClient = _factory.ClientFor(participant.Token);
+        var enrolmentId = await TestHelpers.EnrolAsync(partClient, eventId, categoryId);
+
+        var response = await partClient.PutAsJsonAsync($"/api/enrollments/{enrolmentId}/status",
+            new UpdateEnrollmentStatusRequest { Status = "Confirmed" });
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
