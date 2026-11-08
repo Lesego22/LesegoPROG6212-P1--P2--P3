@@ -74,7 +74,8 @@ public class ResultsController : ApiControllerBase
             .OrderByDescending(r => r.Enrolment.EventCategory.Event.EventDate)
             .Select(r => new UserResultDto(r.ResultId, r.Enrolment.EventCategory.Event.EventName,
                 r.Enrolment.EventCategory.Category.CategoryName, r.Position, r.FinishTime,
-                r.Enrolment.EventCategory.Event.EventDate))
+                r.Enrolment.EventCategory.Event.EventDate,
+                _db.Results.Count(x => x.Enrolment.EventCategoryId == r.Enrolment.EventCategoryId)))
             .ToListAsync();
 
         return Ok(new UserResultsResponse(items));
@@ -102,7 +103,7 @@ public class ResultsController : ApiControllerBase
         var items = await limited
             .Select(r => new EventResultDto(r.Position,
                 r.Enrolment.Participant.FirstName + " " + r.Enrolment.Participant.LastName,
-                r.FinishTime, r.ChipNumber, r.Enrolment.EventCategory.Category.CategoryName))
+                r.FinishTime, r.ChipNumber, r.Enrolment.EventCategory.Category.CategoryName, r.EnrolmentId))
             .ToListAsync();
 
         return Ok(new EventResultsResponse(items));
