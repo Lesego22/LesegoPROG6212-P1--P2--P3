@@ -1,0 +1,86 @@
+﻿@model EventDetail
+@{
+    ViewData["Title"] = Model.Name;
+    var open = Model.Status == "Scheduled" && Model.Date > DateTime.Now;
+}
+<div class="rd-card overflow-hidden mb-4">
+    @if (!string.IsNullOrEmpty(Model.BannerImage))
+    {
+        <img class="event-banner event-banner-lg" src="@Url.Action("Get", "Images", new { name = Model.BannerImage })" alt="Banner for @Model.Name" />
+    }
+    else
+    {
+        <div class="event-banner event-banner-lg event-banner-empty"><span>@Model.EventType</span></div>
+    }
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <h1 class="rd-heading h2 mb-0">@Model.Name</h1>
+            <partial name="_StatusBadge" model="Model.Status" />
+        </div>
+        <p class="text-muted mt-2">@Model.Date.ToString("dddd d MMMM yyyy, HH:mm") - @Model.Location</p>
+        <div class="mb-3">
+            <span class="chip">@Model.EventType</span>
+            <span class="chip">@Model.Distance.ToString("0.##") km</span>
+            <span class="chip">@Model.Capacity places</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p>@Model.Description</p>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="rd-card p-4 h-100">
+            <h2 class="rd-heading h5">Available categories</h2>
+            @if (Model.Categories.Count == 0)
+            {
+                <p class="text-muted mb-0">The organiser has not added categories yet.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var c in Model.Categories)
+                    {
+                        <li class="py-1"><span class="chip">@c.Name</span></li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="rd-card p-4 h-100">
+            <h2 class="rd-heading h5">Enrol for this event</h2>
+            @if (!open)
+            {
+                <p class="text-muted mb-0">Enrolment is closed for this event.</p>
+            }
+            else if (Model.Categories.Count == 0)
+            {
+                <p class="text-muted mb-0">You can enrol once the organiser adds a category.</p>
+            }
+            else
+            {
+                <form asp-action="Enrol" method="post">
+                    <input type="hidden" name="eventId" value="@Model.EventId" />
+                    <div class="mb-3">
+                        <label class="form-label" for="categoryId">Choose a category</label>
+                        <select class="form-select" id="categoryId" name="categoryId" required>
+                            @foreach (var c in Model.Categories)
+                            {
+                                <option value="@c.CategoryId">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="emergencyContact">Emergency contact (name and number)</label>
+                        <input class="form-control" id="emergencyContact" name="emergencyContact" maxlength="100" />
+                    </div>
+                    <button type="submit" class="btn btn-rd">Enrol now</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+<p class="mt-4"><a asp-action="Index">&larr; Back to all events</a></p>
