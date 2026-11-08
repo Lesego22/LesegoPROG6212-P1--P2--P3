@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
 using RaceDay.Api.Dtos;
 using RaceDay.Api.Models;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Controllers;
 
@@ -21,7 +22,8 @@ public class EventsController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<EventListResponse>> ListEvents(
         [FromQuery] string? status, [FromQuery] DateTime? dateFrom,
-        [FromQuery] DateTime? dateTo, [FromQuery] string? location)
+        [FromQuery] DateTime? dateTo, [FromQuery] string? location,
+        [FromQuery] string? eventType)
     {
         var query = _db.Events.AsNoTracking().AsQueryable();
 
@@ -29,13 +31,37 @@ public class EventsController : ApiControllerBase
         if (dateFrom.HasValue) query = query.Where(e => e.EventDate >= dateFrom.Value);
         if (dateTo.HasValue) query = query.Where(e => e.EventDate <= dateTo.Value);
         if (!string.IsNullOrWhiteSpace(location)) query = query.Where(e => e.Location.Contains(location));
+        if (!string.IsNullOrWhiteSpace(eventType)) query = query.Where(e => e.EventType == eventType);
 
         var items = await query.OrderBy(e => e.EventDate)
             .Select(e => new EventSummaryDto(e.EventId, e.EventName, e.EventDate, e.Location,
-                e.Distance, e.Capacity, e.EventType, e.Status))
+                e.Distance, e.Capacity, e.EventType, e.Status, e.BannerImage))
             .ToListAsync();
 
         return Ok(new EventListResponse(items));
+    }
+
+   
+    [HttpGet("mine")]
+    [Authorize(Roles = RoleNames.Organiser)]
+    [ProducesResponseType(typeof(OrganiserEventListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<OrganiserEventListResponse>> ListMyEvents()
+    {
+        var organiserId = CurrentUserId;
+        if (organiserId is null) return Error(401, "Invalid token.");
+
+        var items = await _db.Events.AsNoTracking()
+            .Where(e => e.OrganiserId == organiserId.Value)
+            .OrderBy(e => e.EventDate)
+            .Select(e => new OrganiserEventDto(e.EventId, e.EventName, e.EventDate, e.Location,
+                e.Distance, e.Capacity, e.EventType, e.Status, e.BannerImage,
+                _db.Enrolments.Count(en => en.EventCategory.EventId == e.EventId
+                    && en.EnrolmentStatus != EnrolmentStatuses.Cancelled)))
+            .ToListAsync();
+
+        return Ok(new OrganiserEventListResponse(items));
     }
 
     
@@ -54,10 +80,10 @@ public class EventsController : ApiControllerBase
             .Select(ec => new EventCategoryDto(ec.CategoryId, ec.Category.CategoryName)).ToList();
 
         return Ok(new EventDetailResponse(ev.EventId, ev.EventName, ev.Description, ev.EventDate,
-            ev.Location, ev.Distance, ev.Capacity, ev.EventType, ev.Status, categories));
+            ev.Location, ev.Distance, ev.Capacity, ev.EventType, ev.Status, ev.BannerImage, categories));
     }
 
-   
+    
     [HttpPost]
     [Authorize(Roles = RoleNames.Organiser)]
     [ProducesResponseType(typeof(CreateEventResponse), StatusCodes.Status201Created)]
@@ -187,5 +213,38 @@ public class EventsController : ApiControllerBase
 
         return Created($"/api/events/{eventId}", new EventCategoryDto(category.CategoryId, category.CategoryName));
     }
-}
 
+    
+    [HttpPost("{eventId:guid}/banner")]
+    [Authorize(Roles = RoleNames.Organiser)]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ImageUploadResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ImageUploadResponse>> UploadBanner(
+        Guid eventId, IFormFile file, [FromServices] IBlobStorageService blobs)
+    {
+        var ev = await _db.Events.FirstOrDefaultAsync(e => e.EventId == eventId);
+        if (ev is null) return Error(404, "Event not found.");
+        if (ev.OrganiserId != CurrentUserId) return Error(403, "You can only change your own events.");
+
+        var problem = ImageRules.Validate(file, out var extension);
+        if (problem is not null) return Error(400, problem);
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            ev.BannerImage = await blobs.UploadAsync(stream, file.ContentType, "banners", extension);
+        }
+        catch (Exception)
+        {
+            return Error(503, "Image storage is not available right now. Please try again.");
+        }
+
+        ev.ModifiedDate = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return Ok(new ImageUploadResponse(ev.BannerImage!));
+    }
+}

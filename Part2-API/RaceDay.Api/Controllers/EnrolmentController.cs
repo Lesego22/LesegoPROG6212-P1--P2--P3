@@ -7,7 +7,6 @@ using RaceDay.Api.Models;
 
 namespace RaceDay.Api.Controllers;
 
-
 [Authorize]
 [Route("api")]
 public class EnrollmentsController : ApiControllerBase
@@ -48,13 +47,13 @@ public class EnrollmentsController : ApiControllerBase
         var alreadyEnrolled = await _db.Enrolments.AnyAsync(en =>
             en.ParticipantId == userId.Value &&
             en.EventCategory.EventId == request.EventId &&
-            en.EnrolmentStatus == EnrolmentStatuses.Active);
+            en.EnrolmentStatus != EnrolmentStatuses.Cancelled);
         if (alreadyEnrolled)
             return Error(409, "You are already enrolled in this event.");
 
         var taken = await _db.Enrolments.CountAsync(en =>
             en.EventCategory.EventId == request.EventId &&
-            en.EnrolmentStatus == EnrolmentStatuses.Active);
+            en.EnrolmentStatus != EnrolmentStatuses.Cancelled);
         if (taken >= ev.Capacity)
             return Error(409, "This event is full.");
 
@@ -84,7 +83,8 @@ public class EnrollmentsController : ApiControllerBase
         var items = await _db.Enrolments.AsNoTracking()
             .Where(en => en.ParticipantId == userId)
             .OrderByDescending(en => en.EnrolmentDate)
-            .Select(en => new UserEnrollmentDto(en.EnrolmentId, en.EventCategory.Event.EventName,
+            .Select(en => new UserEnrollmentDto(en.EnrolmentId, en.EventCategory.EventId,
+                en.EventCategory.Event.EventName, en.EventCategory.Event.EventDate,
                 en.EventCategory.Category.CategoryName, en.EnrolmentStatus, en.EnrolmentDate))
             .ToListAsync();
 
@@ -117,5 +117,32 @@ public class EnrollmentsController : ApiControllerBase
 
         return Ok(new EventEnrollmentsResponse(items));
     }
-}
 
+    
+    [HttpPut("enrollments/{enrollmentId:guid}/status")]
+    [Authorize(Roles = RoleNames.Organiser)]
+    [ProducesResponseType(typeof(UpdateEnrollmentStatusResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UpdateEnrollmentStatusResponse>> UpdateEnrollmentStatus(
+        Guid enrollmentId, [FromBody] UpdateEnrollmentStatusRequest request)
+    {
+        var enrolment = await _db.Enrolments
+            .Include(en => en.EventCategory).ThenInclude(ec => ec.Event)
+            .FirstOrDefaultAsync(en => en.EnrolmentId == enrollmentId);
+        if (enrolment is null) return Error(404, "Enrolment not found.");
+        if (enrolment.EventCategory.Event.OrganiserId != CurrentUserId)
+            return Error(403, "You can only change enrolments for your own events.");
+
+        if (!EnrolmentStatuses.TryNormalise(request.Status, out var status))
+            return Error(400, "status must be Pending, Confirmed or Cancelled.");
+
+        enrolment.EnrolmentStatus = status;
+        enrolment.ModifiedDate = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        return Ok(new UpdateEnrollmentStatusResponse(enrolment.EnrolmentId, enrolment.EnrolmentStatus));
+    }
+}
