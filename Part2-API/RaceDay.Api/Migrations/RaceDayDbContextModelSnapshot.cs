@@ -61,6 +61,10 @@ namespace RaceDay.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("ProfilePicture")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<Guid>("UserRoleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -139,7 +143,7 @@ namespace RaceDay.Api.Migrations
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("Enrollment", (string)null);
+                    b.ToTable("Enrolment", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.Api.Models.Event", b =>
@@ -147,6 +151,10 @@ namespace RaceDay.Api.Migrations
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BannerImage")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
@@ -318,7 +326,7 @@ namespace RaceDay.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("RaceDay.Api.Models.AppUser", "Participant")
-                        .WithMany("Enrollments")
+                        .WithMany("Enrolments")
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -371,7 +379,7 @@ namespace RaceDay.Api.Migrations
 
             modelBuilder.Entity("RaceDay.Api.Models.AppUser", b =>
                 {
-                    b.Navigation("Enrollments");
+                    b.Navigation("Enrolments");
 
                     b.Navigation("OrganisedEvents");
                 });
