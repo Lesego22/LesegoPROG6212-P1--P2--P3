@@ -9,7 +9,7 @@ public class EventRequestBase
 
     public string? Description { get; set; }
 
-    
+   
     public DateTime Date { get; set; }
 
     [Required, StringLength(100)]
