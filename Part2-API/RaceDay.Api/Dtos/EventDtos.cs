@@ -9,28 +9,24 @@ public class EventRequestBase
 
     public string? Description { get; set; }
 
-   
     public DateTime Date { get; set; }
 
     [Required, StringLength(100)]
     public string Location { get; set; } = string.Empty;
 
-    
     [Range(0.01, 999.99)]
     public decimal Distance { get; set; }
 
-    
     [Range(1, 1000000)]
     public int Capacity { get; set; }
 
-    
     [Required]
     public string EventType { get; set; } = "Run";
 }
 
 public class CreateEventRequest : EventRequestBase
 {
-    
+   
     public List<Guid> CategoryIds { get; set; } = new();
 }
 

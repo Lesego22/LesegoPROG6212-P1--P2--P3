@@ -7,10 +7,10 @@ public class RecordResultRequest
     
     public Guid EnrollmentId { get; set; }
 
-   
+    
     public TimeSpan FinishTime { get; set; }
 
-   
+    
     [Range(1, 1000000)]
     public int Position { get; set; }
 

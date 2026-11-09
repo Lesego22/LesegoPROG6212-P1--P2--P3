@@ -23,9 +23,11 @@ public record EventEnrollmentsResponse(List<EventEnrollmentDto> Enrollments);
 
 public class UpdateEnrollmentStatusRequest
 {
-    /// <summary>Pending, Confirmed or Cancelled.</summary>
+    
     [Required]
     public string Status { get; set; } = string.Empty;
 }
 
 public record UpdateEnrollmentStatusResponse(Guid EnrollmentId, string Status);
+
+

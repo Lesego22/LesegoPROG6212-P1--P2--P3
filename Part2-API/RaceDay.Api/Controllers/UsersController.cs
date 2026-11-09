@@ -59,6 +59,7 @@ public class UsersController : ApiControllerBase
     }
 
     
+    [HttpPost("{userId:guid}/picture")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ImageUploadResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -92,3 +93,4 @@ public class UsersController : ApiControllerBase
         return Ok(new ImageUploadResponse(user.ProfilePicture!));
     }
 }
+

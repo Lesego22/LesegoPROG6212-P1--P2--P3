@@ -81,7 +81,7 @@ public class ResultsController : ApiControllerBase
         return Ok(new UserResultsResponse(items));
     }
 
-    
+   
     [HttpGet("events/{eventId:guid}/results")]
     [ProducesResponseType(typeof(EventResultsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

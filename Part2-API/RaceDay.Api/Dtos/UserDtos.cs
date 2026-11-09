@@ -17,3 +17,5 @@ public class UpdateProfileRequest
     [StringLength(20)]
     public string? PhoneNumber { get; set; }
 }
+
+public record UpdateProfileResponse(Guid UserId, string FirstName, string LastName, DateTime ModifiedDate);
