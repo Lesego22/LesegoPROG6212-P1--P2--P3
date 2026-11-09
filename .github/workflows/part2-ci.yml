@@ -1,31 +1,37 @@
-name: Part 2 API CI
-
+name: Part 2 and 3 CI
+ 
 on:
   push:
-    branches: [ "Part2-Api" ]
+    branches: [ "Part2-Api", "Part3-Mvc" ]
   pull_request:
-
+ 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: Part2-API
-
+ 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
+ 
       - name: Set up .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
+ 
       - name: Restore packages
         run: dotnet restore
-
-      - name: Build
+ 
+      - name: Build API and MVC projects
         run: dotnet build --configuration Release --no-restore
-
+ 
       - name: Run unit tests
         run: dotnet test --configuration Release --no-build --verbosity normal
+ 
+      - name: Build the MVC project on its own
+        run: dotnet build ../Part3-Web/RaceDay.Web/RaceDay.Web.csproj --configuration Release
+ 
+      - name: Build the Docker image
+        run: docker build -t raceday-web ../Part3-Web/RaceDay.Web
