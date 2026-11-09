@@ -145,3 +145,79 @@ In Visual Studio use **Test > Run All Tests**, or run `dotnet test` inside `Part
 The video presentation is demonstrated on YouTube explaining the endpoints, Erd and SQL scripts for raceday.
 YouTube Link: https://youtu.be/xMwFNx8FwxI
 
+---
+ 
+# Part 3 - MVC Web Application
+ 
+The RaceDay website. It is an ASP.NET Core MVC app that gets all its data from the Part 2 API.
+It has no database code and no business rules of its own, and it never talks to Azure directly.
+ 
+> Part 3 is in the **Part3-Mvc** branch. The website is in the **Part3-Web/RaceDay.Web** folder.
+> The Part 2 API (in **Part2-API**) was extended with image upload and a few extra endpoints.
+ 
+**Demo video (unlisted YouTube):** [https://youtu.be/A5VPolBRdLc]
+ 
+## What it does
+| Organiser | Participant |
+|---|---|
+| Dashboard: events created, enrolments per event, upcoming dates | Home page: upcoming events with filters (location, type, dates) |
+| Create, edit and delete events (with banner image) | Event page with full details and categories |
+| Add age or distance categories to each event | Enrol in an event and pick a category |
+| See everyone enrolled and confirm or cancel places | My enrolments with colour-coded status |
+| Enter finish times and positions | My results (for example "47th out of 312 finishers") |
+| Profile page | Profile page with profile picture upload |
+ 
+Enrolment statuses are colour coded: green = Confirmed, amber = Pending, red = Cancelled.
+ 
+## How login works
+The website calls the API to log in, then keeps the user's token, role and name in the **ASP.NET Core session**.
+Every page checks the session. A visitor who is not logged in is sent to the login page, and a user with the wrong role
+is sent to an "access denied" page. Logging out clears the session.
+ 
+## Azure Blob Storage
+Image uploads (event banners and profile pictures) go from the website to the **API**, and the API stores them in Azure Blob Storage.
+The website shows images by asking the API for them, so it never talks to Azure.
+ 
+The API reads its storage settings from `AzureBlob:ConnectionString` and `AzureBlob:ContainerName`.
+- **Real Azure account:** put your connection string in user secrets (do not commit it):
+  `dotnet user-secrets set "AzureBlob:ConnectionString" "<your connection string>"` (run inside `Part2-API/RaceDay.Api`).
+- **Local testing without Azure:** the default `UseDevelopmentStorage=true` uses the free Azurite storage emulator
+  (`npm install -g azurite` then `azurite --silent`).
+ 
+## Run it locally (Visual Studio 2022)
+1. Open `Part2-API/RaceDay.Api.sln`.
+2. Update the database: Package Manager Console, default project `RaceDay.Api`, run `Update-Database`.
+3. Start Azurite (or set your Azure connection string, see above).
+4. Right-click the solution > **Configure Startup Projects** > **Multiple startup projects**. Set `RaceDay.Api` and `RaceDay.Web` to **Start**.
+5. Press **F5**. The API runs at http://localhost:5080 and the website at http://localhost:5090.
+6. To register as an Organiser, use the access code `RACEDAY-ORG-2026`.
+ 
+## Run it in Docker
+Make sure the API is running first (step 5 above), then:
+ 
+```
+docker build -t raceday-web ./Part3-Web/RaceDay.Web
+docker run --rm -p 8080:8080 -e ApiBaseUrl=http://host.docker.internal:5080/ raceday-web
+```
+ 
+Open http://localhost:8080. The container behaves the same as the app running locally.
+`host.docker.internal` is how the container reaches the API running on your computer. If the site says it cannot reach the service,
+start the API with `dotnet run --urls http://0.0.0.0:5080` inside `Part2-API/RaceDay.Api` and try again.
+ 
+## Project structure (Part3-Web/RaceDay.Web)
+- `Controllers` - one controller per area (Account, Events, Enrolments, Results, Profile, Manage for the organiser, Images)
+- `Services` - `ApiClient` (all API calls), session helpers and the role-check attribute
+- `Models` - API response classes, form classes and view models
+- `Views` - Razor pages for each controller plus the shared layout
+- `wwwroot/css/site.css` - the RaceDay theme
+- `Dockerfile` - two-stage build (SDK to build, small runtime image to run)
+ 
+## CI/CD
+`.github/workflows/part2-ci.yml` restores and builds the API and the MVC project, runs the unit tests,
+and builds the Docker image on every push.
+ 
+![Green build](<img width="1920" height="778" alt="Screenshot 2026-11-09 185152" src="https://github.com/user-attachments/assets/aa8470a4-0297-41b7-b14f-ca2d37ae0f60" />
+
+)
+
+
