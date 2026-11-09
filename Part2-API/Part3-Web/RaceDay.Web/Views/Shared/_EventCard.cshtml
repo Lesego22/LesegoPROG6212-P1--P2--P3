@@ -1,0 +1,20 @@
+﻿@model EventSummary
+<div class="col-md-6 col-lg-4">
+    <div class="rd-card h-100">
+        @if (!string.IsNullOrEmpty(Model.BannerImage))
+        {
+            <img class="event-banner" src="@Url.Action("Get", "Images", new { name = Model.BannerImage })" alt="Banner for @Model.Name" />
+        }
+        else
+        {
+            <div class="event-banner event-banner-empty"><span>@Model.EventType</span></div>
+        }
+        <div class="p-3">
+            <h2 class="h5 rd-heading mb-1">@Model.Name</h2>
+            <p class="text-muted small mb-2">@Model.Date.ToString("ddd d MMM yyyy, HH:mm") - @Model.Location</p>
+            <span class="chip">@Model.EventType</span>
+            <span class="chip">@Model.Distance.ToString("0.##") km</span>
+            <a class="btn btn-rd btn-sm float-end" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId">View event</a>
+        </div>
+    </div>
+</div>
